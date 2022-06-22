@@ -41,3 +41,7 @@ class CloudDataContext(AbstractDataContext):
 
     def _init_variables(self) -> CloudDataContextVariables:
         raise NotImplementedError
+
+    @property
+    def config(self) -> DataContextConfig:
+        return self._project_config

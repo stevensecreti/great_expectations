@@ -208,3 +208,75 @@ class AbstractDataContext(ABC):
             conf_file_section="anonymous_usage_statistics",
             conf_file_option="usage_statistics_url",
         )
+
+    ## Public Methods
+
+    def get_config_with_variables_substituted(
+        self, config: Optional[DataContextConfig] = None
+    ) -> DataContextConfig:
+        """
+        Substitute vars in config of form ${var} or $(var) with values found in the following places,
+        in order of precedence: ge_cloud_config (for Data Contexts in GE Cloud mode), runtime_environment,
+        environment variables, config_variables, or ge_cloud_config_variable_defaults (allows certain variables to
+        be optional in GE Cloud mode).
+        """
+        if not config:
+            config = self.config
+
+        substitutions: dict = self._determine_substitutions()
+
+    ## Properties
+    @property
+    @abstractmethod
+    def config(self) -> DataContextConfig:
+        pass
+
+    @property
+    @abstractmethod
+    def config(self) -> DataContextConfig:
+        pass
+
+    @property
+    @abstractmethod
+    def config(self) -> DataContextConfig:
+        pass
+
+    def _determine_substitutions(self) -> dict:
+        """Aggregates substitutions from the project's config variables file, any environment variables, and
+        the runtime environment.
+
+        Returns: A dictionary containing all possible substitutions that can be applied to a given object
+             using `substitute_all_config_variables`.
+        """
+        substituted_config_variables: dict = substitute_all_config_variables(
+            self.config_variables,
+            dict(os.environ),
+            self.DOLLAR_SIGN_ESCAPE_STRING,
+        )
+        substitutions = {
+            **substituted_config_variables,
+            **dict(os.environ),
+            **self.runtime_environment,
+        }
+        return substitutions
+
+    def _determine_substitutions(self) -> dict:
+        """Aggregates substitutions from the project's config variables file, any environment variables, and
+        the runtime environment.
+
+        Returns: A dictionary containing all possible substitutions that can be applied to a given object
+             using `substitute_all_config_variables`.
+        """
+        # this is the key difference. In the case of FileDataContex, we will look at the config file
+        config: dict = self.config
+        substituted_config_variables: dict = substitute_all_config_variables(
+            self.config_variables,
+            dict(os.environ),
+            self.DOLLAR_SIGN_ESCAPE_STRING,
+        )
+        substitutions = {
+            **substituted_config_variables,
+            **dict(os.environ),
+            **self.runtime_environment,
+        }
+        return substitutions

@@ -43,3 +43,28 @@ class FileDataContext(AbstractDataContext):
 
     def _init_variables(self) -> FileDataContextVariables:
         raise NotImplementedError
+
+    @property
+    def config(self) -> DataContextConfig:
+        return self._project_config
+
+    def _determine_substitutions(self) -> dict:
+        # TODO: this is because config_variables loads from file and is a file data context specific thing.
+
+        """Aggregates substitutions from the project's config variables file, any environment variables, and
+        the runtime environment.
+
+        Returns: A dictionary containing all possible substitutions that can be applied to a given object
+             using `substitute_all_config_variables`.
+        """
+        substituted_config_variables: dict = substitute_all_config_variables(
+            self.config_variables,
+            dict(os.environ),
+            self.DOLLAR_SIGN_ESCAPE_STRING,
+        )
+        substitutions = {
+            **substituted_config_variables,
+            **dict(os.environ),
+            **self.runtime_environment,
+        }
+        return substitutions

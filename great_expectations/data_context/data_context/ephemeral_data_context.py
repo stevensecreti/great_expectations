@@ -40,3 +40,8 @@ class EphemeralDataContext(AbstractDataContext):
 
     def _init_variables(self) -> EphemeralDataContextVariables:
         raise NotImplementedError
+
+    # properties
+    @property
+    def config(self) -> DataContextConfig:
+        return self._project_config

@@ -380,6 +380,8 @@ class BaseDataContext(EphemeralDataContext, ConfigPeer):
         ):
             sys.path.append(self.plugins_directory)
 
+        self._project_config = self._data_context._project_config
+
         # We want to have directories set up before initializing usage statistics so that we can obtain a context instance id
         self._in_memory_instance_id = (
             None  # This variable *may* be used in case we cannot save an instance id
@@ -966,44 +968,44 @@ class BaseDataContext(EphemeralDataContext, ConfigPeer):
         else:
             return {}
 
-    def get_config_with_variables_substituted(
-        self, config: Optional[DataContextConfig] = None
-    ) -> DataContextConfig:
-        """
-        Substitute vars in config of form ${var} or $(var) with values found in the following places,
-        in order of precedence: ge_cloud_config (for Data Contexts in GE Cloud mode), runtime_environment,
-        environment variables, config_variables, or ge_cloud_config_variable_defaults (allows certain variables to
-        be optional in GE Cloud mode).
-        """
-        if not config:
-            config = self.config
-
-        substitutions: dict = self._determine_substitutions()
-
-        if self.ge_cloud_mode:
-            ge_cloud_config_variable_defaults = {
-                "plugins_directory": self._normalize_absolute_or_relative_path(
-                    DataContextConfigDefaults.DEFAULT_PLUGINS_DIRECTORY.value
-                ),
-                "usage_statistics_url": DEFAULT_USAGE_STATISTICS_URL,
-            }
-            for config_variable, value in ge_cloud_config_variable_defaults.items():
-                if substitutions.get(config_variable) is None:
-                    logger.info(
-                        f'Config variable "{config_variable}" was not found in environment or global config ('
-                        f'{self.GLOBAL_CONFIG_PATHS}). Using default value "{value}" instead. If you would '
-                        f"like to "
-                        f"use a different value, please specify it in an environment variable or in a "
-                        f"great_expectations.conf file located at one of the above paths, in a section named "
-                        f'"ge_cloud_config".'
-                    )
-                    substitutions[config_variable] = value
-
-        return DataContextConfig(
-            **substitute_all_config_variables(
-                config, substitutions, self.DOLLAR_SIGN_ESCAPE_STRING
-            )
-        )
+    # def get_config_with_variables_substituted(
+    #     self, config: Optional[DataContextConfig] = None
+    # ) -> DataContextConfig:
+    #     """
+    #     Substitute vars in config of form ${var} or $(var) with values found in the following places,
+    #     in order of precedence: ge_cloud_config (for Data Contexts in GE Cloud mode), runtime_environment,
+    #     environment variables, config_variables, or ge_cloud_config_variable_defaults (allows certain variables to
+    #     be optional in GE Cloud mode).
+    #     """
+    #     if not config:
+    #         config = self.config
+    #
+    #     substitutions: dict = self._determine_substitutions()
+    #
+    #     if self.ge_cloud_mode:
+    #         ge_cloud_config_variable_defaults = {
+    #             "plugins_directory": self._normalize_absolute_or_relative_path(
+    #                 DataContextConfigDefaults.DEFAULT_PLUGINS_DIRECTORY.value
+    #             ),
+    #             "usage_statistics_url": DEFAULT_USAGE_STATISTICS_URL,
+    #         }
+    #         for config_variable, value in ge_cloud_config_variable_defaults.items():
+    #             if substitutions.get(config_variable) is None:
+    #                 logger.info(
+    #                     f'Config variable "{config_variable}" was not found in environment or global config ('
+    #                     f'{self.GLOBAL_CONFIG_PATHS}). Using default value "{value}" instead. If you would '
+    #                     f"like to "
+    #                     f"use a different value, please specify it in an environment variable or in a "
+    #                     f"great_expectations.conf file located at one of the above paths, in a section named "
+    #                     f'"ge_cloud_config".'
+    #                 )
+    #                 substitutions[config_variable] = value
+    #
+    #     return DataContextConfig(
+    #         **substitute_all_config_variables(
+    #             config, substitutions, self.DOLLAR_SIGN_ESCAPE_STRING
+    #         )
+    #     )
 
     def _determine_substitutions(self) -> dict:
         """Aggregates substitutions from the project's config variables file, any environment variables, and
