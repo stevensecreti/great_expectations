@@ -10,6 +10,7 @@ from great_expectations.data_context.types.base import (
     DataContextConfig,
     anonymizedUsageStatisticsSchema,
 )
+from great_expectations.data_context.util import substitute_all_config_variables
 
 logger = logging.getLogger(__name__)
 
@@ -224,7 +225,6 @@ class AbstractDataContext(ABC):
         """
         if not config:
             config = self.config
-
         substitutions: dict = self._determine_substitutions()
 
     ## Properties

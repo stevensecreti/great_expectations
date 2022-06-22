@@ -380,8 +380,6 @@ class BaseDataContext(EphemeralDataContext, ConfigPeer):
         ):
             sys.path.append(self.plugins_directory)
 
-        self._project_config = self._data_context._project_config
-
         # We want to have directories set up before initializing usage statistics so that we can obtain a context instance id
         self._in_memory_instance_id = (
             None  # This variable *may* be used in case we cannot save an instance id
