@@ -60,8 +60,10 @@ class AbstractDataContext(ABC):
         """
         validation_errors: dict = {}
         config_with_global_config_overrides: DataContextConfig = copy.deepcopy(config)
-        usage_stats_enabled: bool = self._get_global_usage_statistics_override()
-        if not usage_stats_enabled:
+        usage_stats_opted_out: bool = self._check_global_usage_statistics_opt_out()
+        # if usage_stats_opted_out then usage_statistics is false
+        # TODO: Refactor so that this becomes usage_stats_enabled (and we don't have to flip the boolean in our minds)
+        if usage_stats_opted_out:
             logger.info(
                 "Usage statistics is disabled globally. Applying override to project_config."
             )
