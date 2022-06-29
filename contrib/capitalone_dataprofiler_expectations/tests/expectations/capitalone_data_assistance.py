@@ -1,4 +1,4 @@
-from profiler_config_generator import ProfilerConfigGenerator, Rule, saveProfileConfigString
+from expect_capitalone_data_assistance import ProfilerConfigGenerator, Rule
 
 import great_expectations as ge
 from great_expectations.core.batch import RuntimeBatchRequest
