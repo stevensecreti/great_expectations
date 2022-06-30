@@ -1,7 +1,14 @@
 import json
 from typing import Optional, Any, Dict, List
 
-from numpy import var
+import dataprofiler as dp
+import pandas as pd
+import numpy as np
+import tensorflow as tf
+
+from ruamel import yaml
+
+import great_expectations as ge
 
 class Rule:
     def __init__(
@@ -729,3 +736,57 @@ class ProfilerConfigGenerator:
         profiler_config += variables
         profiler_config += rules
         return profiler_config
+
+    def assert_context_initialized(self):
+        context = self.context
+        if not isinstance(context, ge.DataContext):
+            raise TypeError("Expected object of type <great_expectation.DataContext>, instead received: ", + str(type(context)))
+
+    def get_ge_context(self):
+        """
+        Simple getter that returns this ProfilerConfigGenerator's great_expectations DataContext, if present.
+
+        @Returns:
+            On Success, the DataContext stored in this object's 'context' field
+            On Failure, None
+        """
+        return self.context
+    
+    def set_ge_context(self, context: ge.DataContext):
+        """
+        Simple setter that sets this objects context field to the one provided.
+
+        Args:
+            context: A great_expectations DataContext object, to be stored in this object
+        
+        Returns:
+            old_context: The previous context stored in this object, before replacement, if it exists 
+                         Otherwise, None.
+        """
+        self.assert_context_initialized()
+        old_context = self.context
+        self.context = context
+        return old_context
+
+    def add_ge_context_datasource(self, datasource: Dict[str, Any]):
+        """
+        Adds the provided datasource config dict to this objects great_expectations context field
+
+        Args:
+            datasource: the datasource config dict that will be added to this objects DataContext
+
+        Returns:
+            context: On success, returns this objects context field containing a great_expectations DataContext
+        
+        Exceptions:
+            TypeError: Raised when context is not initialized and stores a None type
+        """
+        self.assert_context_initialized()
+        context = self.context
+        context.add_datasource(**datasource)
+
+    def generate_and_run_suite_and_checkpoint(self, dataframes: List[pd.DataFrame], title: str, **kwargs):
+        """
+        Gen and Run suite and checkpoint
+        """
+        return 0

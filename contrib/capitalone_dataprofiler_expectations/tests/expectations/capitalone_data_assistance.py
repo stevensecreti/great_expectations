@@ -1,4 +1,4 @@
-from expect_capitalone_data_assistance import ProfilerConfigGenerator, Rule
+#from profilers.profile_capitalone_data_assistance import ProfilerConfigGenerator, Rule
 
 import great_expectations as ge
 from great_expectations.core.batch import RuntimeBatchRequest
@@ -58,6 +58,23 @@ profile_options.structured_options.multiprocess.is_enabled = False
 profileObj = dp.Profiler(df, options=profile_options)
 profileReport = profileObj.report(report_options={"output_format": "compact"})
 
+data2 = [
+    [-36, -25, -44],
+    [18, 42, 41],
+    [-14, 1009, -49],
+    [21, 4, 34],
+    [-18, -7, -40],
+    [22, -4, -37],
+]
+
+
+df2 = pd.DataFrame(data=data2, columns=cols)
+
+print("About to call expectation at runtime")
+result = df2.expect_column_values_to_be_equal_to_or_greater_than_profile_min(column="col_b", profileReport=profileReport)
+print("Called at runtime, result = ", result)
+
+
 variables = {
     "profileReport": profileReport,
 }
@@ -110,18 +127,6 @@ rule_based_profiler: RuleBasedProfiler = RuleBasedProfiler(
     variables=full_profiler_config_dict["variables"],
     data_context=context
 )
-
-data2 = [
-    [-36, -25, -44],
-    [18, 42, 41],
-    [-14, 1009, -49],
-    [21, 4, 34],
-    [-18, -7, -40],
-    [22, -4, -37],
-]
-
-df2 = pd.DataFrame(data=data2, columns=cols)
-
 batch_request = RuntimeBatchRequest(
     datasource_name="df2",
     data_connector_name="default_runtime_data_connector_name",
